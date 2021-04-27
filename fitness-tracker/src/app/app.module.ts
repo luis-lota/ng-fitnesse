@@ -4,6 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { StoreModule } from '@ngrx/store'
+import { appReducer } from './app.reducer';
 
 import { AppComponent } from './app.component';
 import { AuthModule } from './auth/auth.module';
@@ -15,7 +17,6 @@ import { AuthService } from './auth/auth.service';
 import { TrainingService } from './training/training.service';
 import { environment } from '../environments/environment';
 import { UIService } from './shared/ui.service';
-import { TrainingModule } from './training/training.module';
 import { SharedModule } from './shared/shared.module';
 
 @NgModule({
@@ -34,7 +35,9 @@ import { SharedModule } from './shared/shared.module';
     ReactiveFormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    TrainingModule,
+    StoreModule.forRoot({
+      ui : appReducer
+    })
   ],
   providers: [AuthService, TrainingService, UIService],
   bootstrap: [AppComponent],
