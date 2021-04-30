@@ -35,34 +35,26 @@ export class AuthService {
   }
 
   registerUser(authData: AuthData) {
-    //this.uiService.loadingStateChanged.next(true);
-    // this.store.dispatch({ type: 'START_LOADING' });
     this.store.dispatch(new UI.StartLoading());
-
     this.afauth
       .createUserWithEmailAndPassword(authData.email, authData.password)
       .then((result) => {
-        //this.uiService.loadingStateChanged.next(false);
         this.store.dispatch(new UI.StopLoading());
       })
       .catch((error) => {
-        //this.uiService.loadingStateChanged.next(false);
         this.store.dispatch(new UI.StopLoading());
         this.uiService.showSnackBar(error.message, null, 3000);
       });
   }
 
   login(authData: AuthData) {
-    // this.uiService.loadingStateChanged.next(true);
     this.store.dispatch(new UI.StartLoading());
     this.afauth
       .signInWithEmailAndPassword(authData.email, authData.password)
       .then((result) => {
-        //   this.uiService.loadingStateChanged.next(false);
         this.store.dispatch(new UI.StopLoading());
       })
       .catch((error) => {
-        // this.uiService.loadingStateChanged.next(false);
         this.store.dispatch(new UI.StopLoading());
 
         this.uiService.showSnackBar(error.message, null, 3000);

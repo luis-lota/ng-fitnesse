@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TrainingService } from '../training.service';
 import { StopTrainingComponent } from './stop-training.component';
+import { Store } from '@ngrx/store';
+import * as fromTraining from '../training.reducer';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-current-traning',
@@ -10,11 +13,31 @@ import { StopTrainingComponent } from './stop-training.component';
 })
 export class CurrentTraningComponent implements OnInit {
   progress = 0;
-  timer: number | any;
-  constructor(private dialog: MatDialog, private trainingService : TrainingService) {}
+  timer: number | any = 300;
+  constructor(
+    private dialog: MatDialog,
+    private trainingService: TrainingService,
+    private store: Store<fromTraining.State>
+  ) {}
 
   ngOnInit(): void {
     this.startOrResumeTimer();
+  }
+
+  startOrResumeTimer() {
+    this.store
+      .select(fromTraining.getActiveTraining)
+      .pipe(take(1))
+      .subscribe((ex) => {
+        const step = (ex.duration / 100) * 1000;
+        this.timer = setInterval(() => {
+          this.progress = this.progress + 1;
+          if (this.progress >= 100) {
+            this.trainingService.completeExercise();
+            clearInterval(this.timer);
+          }
+        }, step);
+      });
   }
 
   onStop() {
@@ -26,23 +49,11 @@ export class CurrentTraningComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
       if (result) {
         this.trainingService.cancelExercise(this.progress);
       } else {
         this.startOrResumeTimer();
       }
     });
-  }
-
-  startOrResumeTimer() {
-    const step = this.trainingService.getRunningExercise().duration / 100 * 1000;
-    this.timer = setInterval(() => {
-      this.progress = this.progress + 30;
-      if (this.progress >= 100) {
-        this.trainingService.completeExercise();
-        clearInterval(this.timer);
-      }
-    }, step);
   }
 }
